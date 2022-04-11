@@ -26,9 +26,9 @@ pip install -r requirements.txt
 
 ### 주의사항
 - 작업 전 "git pull"하고 수행하기
-- 작업 마친 후 git commit -m "작업 완료" | git push 수행하기
+- 작업 마친 후 git add . | git commit -m "작업 완료" | git push 수행하기
 - 각자 작업하는 폴더 이외의 코드는 수정하기 않기, 꼭 수정이 필요하면 먼저 알리고 수정 (충돌 방지)
-
+- repository 별 달기
 
 ### Flow
 ```
