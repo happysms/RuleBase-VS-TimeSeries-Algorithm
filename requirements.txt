@@ -5,3 +5,5 @@ seaborn
 tqdm
 statsmodels
 parmap
+sklearn
+tensorflow
