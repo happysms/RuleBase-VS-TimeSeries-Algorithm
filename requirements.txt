@@ -7,3 +7,5 @@ statsmodels
 parmap
 sklearn
 tensorflow
+xgboost
+datatime
