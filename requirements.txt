@@ -10,3 +10,4 @@ tensorflow
 xgboost
 datetime
 ipykernel
+Finance-DataReader
