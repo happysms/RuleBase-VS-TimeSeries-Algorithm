@@ -12,3 +12,5 @@ datetime
 ipykernel
 Finance-DataReader
 bs4
+pandas_ta
+pylint
