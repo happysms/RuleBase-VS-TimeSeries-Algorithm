@@ -11,3 +11,4 @@ xgboost
 datetime
 ipykernel
 Finance-DataReader
+bs4
