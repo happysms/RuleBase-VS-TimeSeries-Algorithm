@@ -10,8 +10,9 @@ tensorflow
 xgboost
 datetime
 ipykernel
-Finance-DataReader
+finance-datareader
 bs4
 pandas_ta
 pylint
 jupyter
+TA-Lib
