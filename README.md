@@ -8,6 +8,13 @@ Rule Base Trading Strategy VS TimeSeries Algorithm Trading Strategy (KHU Data An
 git clone https://github.com/happysms/RoleBase-VS-TimeSeries-Algorithm.git
 ```
 
+### git 강제 pull 방법
+```
+git fetch --all
+git reset --hard origin/main
+git pull origin main
+```
+
 ### Python 환경
 
 Conda Python 3.8 - 구글링해서 패키지 환경 세팅 방법 확인 후 세팅 바람
@@ -67,3 +74,13 @@ git push
 3. MDD(Maximum drawdown): 최대 손실폭(최고점 수익률에서 최저점 수익률까지의 낙폭)
 4. 누적 수익률(Cumulative return rate): 누적 수익률
 5. 손익비(P&L rate): 거래 성공시 수익률 평균 / 거래 실패시 수익률 평균
+
+
+### 테스트 기간 설정
+    2017년 이후에서야 경우 비트코인이 많은 사람들에게 주목을 받고 많은 개인 투자자들이 투자를 했기 때문에 2017년 이후의 데이터로만 테스트를 진행한다.
+
+    총 기간: 2017-01-01 ~ 2022-05-15
+
+    상승장: 2020-03-14 ~ 2021-01-09
+
+    하락장: 2021-10-10 ~ 2022-05-15
