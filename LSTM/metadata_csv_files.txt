@@ -1,0 +1,4 @@
+파일명 // 데이터셋 // 사용 모델 // 파라미터 // 수익률 평가 기준
+
+0512_LSTM.csv // btc_usd_1d.pkl 전체구간 ('14년 11월 ~'22년 1월) //  LSTM(many to many)  // window: 10, horizon: 1 // 100일 학습 후 1일예측
+0518_1d_LSTM.csv // btc_usd_1d.pkl 전체구간 ('17년 1월 ~'22년 5월) //  LSTM(many to many)  // window: 10, horizon: 1 // 100일 학습 후 1일예측
