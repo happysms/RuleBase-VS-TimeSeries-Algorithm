@@ -16,3 +16,4 @@ pandas_ta
 pylint
 jupyter
 TA-Lib
+requests
