@@ -17,3 +17,4 @@ pylint
 jupyter
 TA-Lib
 requests
+ccxt
