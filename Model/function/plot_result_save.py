@@ -40,5 +40,6 @@ def plot_result(df):
     plt.plot(l, df['prediction_close'].values , color='r', label='prediction close')
     plt.legend()
     plt.grid(True)
-    A = analysis_return(df)
-    plt.savefig('plot_image/{}_{}_{}_{}_{}_{}.png'.format(df, A["trade_rate"], A["success_rate"], A["pnl_rate"], A["mdd"], A["cr"]), dpi=300)
+    plt.savefig('plot_image/temp.png', dpi=300)
+    #A = analysis_return(df)
+    #.format(df, A["trade_rate"], A["success_rate"], A["pnl_rate"], A["mdd"], A["cr"])
