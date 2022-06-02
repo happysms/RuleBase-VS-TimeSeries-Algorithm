@@ -3,3 +3,4 @@
 .idea/
 .Arima/.ipynb_checkpoints
 bitcoin
+Model/function/__pycache__
