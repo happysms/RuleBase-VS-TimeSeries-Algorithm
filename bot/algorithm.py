@@ -1,13 +1,20 @@
 from errors import NotFoundAlgorithm
 from statsmodels.tsa.arima.model import ARIMA
 from object import OrderObject, ConfigObject
+from sklearn.preprocessing import MinMaxScaler
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, LSTM, Conv1D, Lambda, Dropout
+from tensorflow.keras.losses import Huber
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+import numpy as np
 
 
 class TimeSeriesAlgorithm:
 
     @classmethod
     def predict_close_price(cls, df, algorithm: str, feature: list):
-        if algorithm == "LSTM":
+        if algorithm == "lstm":
             return cls.predict_close_price_from_lstm(df, feature)
 
         elif algorithm == "xgboost":
@@ -22,7 +29,7 @@ class TimeSeriesAlgorithm:
             raise NotFoundAlgorithm()
 
     @staticmethod
-    def predict_close_price_from_lstm(df, feature):
+    def predict_close_price_from_lr(df, feature):
         """
             df는 200일 동안의 1일 데이터
             return: 당일 예측 종가
@@ -45,8 +52,71 @@ class TimeSeriesAlgorithm:
         return close_price
 
     @staticmethod
-    def predict_close_price_from_lr(df, feature):
-        close_price = None
+    def predict_close_price_from_lstm(df, feature):
+        df = df[100:]
+
+        scaler_x = MinMaxScaler()  # MinMaxScaling
+        df[['Open', 'High', 'Low', 'Volume']] = scaler_x.fit_transform(df[['Open', 'High', 'Low', 'Volume']])
+
+        scaler_y = MinMaxScaler()  # 나중에 예측종가를 MinMaxScaling하기 전의 원래 값으로 변환하기 위해 따로 scaler_y를 만듬
+        df['Close'] = scaler_y.fit_transform(df['Close'].values.reshape(-1, 1))
+
+        # ========  LSTM 학습을 위한 데이터 생성 함수
+        def seq2dataset(df, window, horizon):
+            X = []
+            Y = []
+
+            x_val, y_val = df.drop('Close', axis=1, inplace=False), df['Close']
+            x_val = x_val.to_numpy()
+            y_val = y_val.to_numpy()
+
+            for i in range(0, len(df) - (window + horizon) + 1, 5):
+                x = x_val[i:(i + window)]
+                y = y_val[i + window + horizon - 1]
+                X.append(x)
+                Y.append(y)
+            return np.array(X), np.array(Y)
+
+        # ======== LSTM 학습 데이터셋 생성
+        # 윈도우 w와 수평선 h
+
+        w = 10  # 윈도우는 이전 요소 몇 개를 볼 것인지
+        h = 1  # 수평선은 얼마나 먼 미래를 예측할 것인지
+
+        train, test = df[:99], df[100 - w:100]
+        X_train, y_train = seq2dataset(train, w, h)
+
+        X_test, y_test = test.drop('Close', axis=1, inplace=False), test['Close']
+        X_test = X_test.to_numpy()
+        y_test = y_test.to_numpy()
+
+        X_test = X_test.reshape(1, w, 4)
+        y_test = y_test.reshape(1, w, 1)
+
+        # LSTM 모델 구축
+        model = Sequential()
+        model.add(LSTM(units=256, activation='tanh', input_shape=X_train[0].shape))
+        model.add(Dropout(0.2))
+        model.add(Dense(1))
+
+        # Sequence 학습에 비교적 좋은 퍼포먼스를 내는 Huber()를 사용한다.
+        loss = Huber()
+        optimizer = Adam(0.0005)
+        model.compile(loss=Huber(), optimizer=optimizer, metrics=['mse'])
+
+        # earlystopping은 10번 epoch통안 val_loss 개선이 없다면 학습을 멈춘다.
+        earlystopping = EarlyStopping(monitor='val_loss', patience=10)
+
+        # model fitting
+        model.fit(X_train, y_train, epochs=100, batch_size=16, validation_split=0.3, callbacks=[earlystopping], verbose=1)
+
+        # 예측
+        pred = model.predict(X_test)
+
+        # MinMaxScaling 이전의 종가로 다시 스케일링
+        rescaled_pred = scaler_y.inverse_transform(np.array(pred).reshape(-1, 1))
+
+        close_price = rescaled_pred
         return close_price
 
 
