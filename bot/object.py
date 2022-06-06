@@ -9,19 +9,26 @@ class OrderObject:
     def __init__(self):
         with open("config.json", 'r') as file:
             data = json.load(file)
-        self.position = data.position
-        self.ticker = data.ticker
-        self.balance = data.balance
-        self.amount = data.amount
-        self.spot_future = data.spot_future
-        self.exchange_object = self.get_exchange_object(data.api_key, data.api_secret, data.exchange, data.spot_future)
+        self.position = data.get("position")
+        self.ticker = data.get("ticker")
+        self.balance = data.get("balance")
+        self.amount = data.get("amount")
+        self.spot_future = data.get("spot_future")
+        self.exchange_object = self.get_exchange_object(data["api_key"], data["api_secret"], data["exchange"], self.spot_future)
+
+    def __str__(self):
+        return f"position: {self.position}"\
+               f"ticker: {self.ticker}" \
+               f"balance: {self.balance}"\
+               f"amount: {self.amount}" \
+               f"spot_future: {self.spot_future}"
 
     def get_exchange_object(self, api_key, api_secret, exchange, spot_future):
         if "binance" == exchange:
             exchange = ccxt.binance(config={
-                'apiKey': api_key,
-                'secret': api_secret,
-                'enableRateLimit': True,
+                # 'apiKey': api_key,
+                # 'secret': api_secret,
+                # 'enableRateLimit': True,
                 'options': {
                     'defaultType': spot_future
                 }
@@ -68,7 +75,7 @@ class OrderObject:
 
     def open_order(self, amount):
         order = self.exchange_object.create_market_buy_order(symbol=self.ticker, amount=amount)
-
+        self.amount = amount
         order_id = None
         if self.exchange_object.name.lower() == "bybit":
             order_id = order['info']['order_id']
@@ -77,6 +84,10 @@ class OrderObject:
 
         # TODO: amount fix
         return order_id
+
+    def get_available_amount(self, price):
+        amount = self.balance / price
+        return amount
 
     def close_order(self):
         order = self.exchange_object.create_market_sell_order(symbol=self.ticker, amount=self.amount)
@@ -147,7 +158,12 @@ class ConfigObject:
         with open("config.json", 'r') as file:
             data = json.load(file)
 
-        self.algorithm = data.algorithm
-        self.feature: List = data.feature
-        self.condition: List = data.condition
+        self.algorithm = data.get("algorithm")
+        self.feature: List = data.get("feature")
+        self.condition: List = data.get("condition")
+
+    def __str__(self):
+        return f"algorithm: {self.algorithm}"\
+               f"feature: {self.feature}" \
+               f"condition: {self.condition}"
 
