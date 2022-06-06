@@ -2,7 +2,7 @@
     "exchange": "binance",
     "api_key": "~~",
     "api_secret": "~~",
-    "algorithm": "lstm",
+    "algorithm": "lr",
     "feature": ["fng", "dollar_exchange", "etc"],
     "condition": ["rsi", "ma", "noise"],
     "ticker": "BTC/USDT",
