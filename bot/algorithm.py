@@ -56,17 +56,17 @@ class TimeSeriesAlgorithm:
         df = df[100:]
 
         scaler_x = MinMaxScaler()  # MinMaxScaling
-        df[['Open', 'High', 'Low', 'Volume']] = scaler_x.fit_transform(df[['Open', 'High', 'Low', 'Volume']])
+        df[['open', 'high', 'low', 'volume']] = scaler_x.fit_transform(df[['open', 'high', 'low', 'volume']])
 
         scaler_y = MinMaxScaler()  # 나중에 예측종가를 MinMaxScaling하기 전의 원래 값으로 변환하기 위해 따로 scaler_y를 만듬
-        df['Close'] = scaler_y.fit_transform(df['Close'].values.reshape(-1, 1))
+        df['close'] = scaler_y.fit_transform(df['close'].values.reshape(-1, 1))
 
         # ========  LSTM 학습을 위한 데이터 생성 함수
         def seq2dataset(df, window, horizon):
             X = []
             Y = []
 
-            x_val, y_val = df.drop('Close', axis=1, inplace=False), df['Close']
+            x_val, y_val = df.drop('close', axis=1, inplace=False), df['close']
             x_val = x_val.to_numpy()
             y_val = y_val.to_numpy()
 
@@ -86,7 +86,7 @@ class TimeSeriesAlgorithm:
         train, test = df[:99], df[100 - w:100]
         X_train, y_train = seq2dataset(train, w, h)
 
-        X_test, y_test = test.drop('Close', axis=1, inplace=False), test['Close']
+        X_test, y_test = test.drop('close', axis=1, inplace=False), test['close']
         X_test = X_test.to_numpy()
         y_test = y_test.to_numpy()
 
@@ -108,7 +108,7 @@ class TimeSeriesAlgorithm:
         earlystopping = EarlyStopping(monitor='val_loss', patience=10)
 
         # model fitting
-        model.fit(X_train, y_train, epochs=100, batch_size=16, validation_split=0.3, callbacks=[earlystopping], verbose=1)
+        model.fit(X_train, y_train, epochs=100, batch_size=16, validation_split=0.3, callbacks=[earlystopping], verbose=0)
 
         # 예측
         pred = model.predict(X_test)
@@ -116,7 +116,7 @@ class TimeSeriesAlgorithm:
         # MinMaxScaling 이전의 종가로 다시 스케일링
         rescaled_pred = scaler_y.inverse_transform(np.array(pred).reshape(-1, 1))
 
-        close_price = rescaled_pred
+        close_price = rescaled_pred[0][0]
         return close_price
 
 
