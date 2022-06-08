@@ -14,6 +14,12 @@ from sklearn.linear_model import LinearRegression
 import pandas_ta as ta
 import pandas as pd
 
+#for xgb
+import xgboost
+import requests
+from xgboost import XGBRegressor
+import xgb_f as Xf
+
 class TimeSeriesAlgorithm:
 
     @classmethod
@@ -69,7 +75,27 @@ class TimeSeriesAlgorithm:
 
     @staticmethod
     def predict_close_price_from_xgboost(df, feature):
-        close_price = None
+        model = XGBRegressor()
+        df['Date']=df.index
+        test_df=df[:]
+        test_df=Xf.Merge_FnG(test_df,30,30)
+        test_df=Xf.Merge_DJI(test_df)
+        test_df=Xf.Merge_ECR(test_df)
+        test_df=Xf.Merge_HR(test_df)
+        price_df=test_df[:]
+        Xf.OBV_preprocessing(price_df)
+        Xf.preprocessing(price_df,10)
+        df=price_df[:]
+
+        df = df[len(df) - 101:]
+        df.drop('Date',axis=1,inplace=True)
+        print(df)
+
+        x_train, y_train = df[:100].drop("close", axis=1), df[:100]["close"]
+        model.fit(x_train, y_train)
+        x_test = df[100:101].drop("close", axis=1) 
+        [close_price] = model.predict(x_test)
+
         return close_price
 
     @staticmethod
