@@ -9,6 +9,10 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 import numpy as np
 
+#for LR
+from sklearn.linear_model import LinearRegression
+import pandas_ta as ta
+import pandas as pd
 
 class TimeSeriesAlgorithm:
 
@@ -34,7 +38,33 @@ class TimeSeriesAlgorithm:
             df는 200일 동안의 1일 데이터
             return: 당일 예측 종가
         """
-        close_price = None
+        model = LinearRegression()
+        
+        # TA 지표 수집 후 합치기
+        adx = df.ta.adx()
+        macd = df.ta.macd(fast=14, slow=24)
+        rsi = df.ta.rsi()
+        df = pd.concat([df, adx, macd, rsi], axis=1)
+        
+        # 이동평균선에 대한 결측치 제거
+        df = df.dropna(axis=1, how='all')
+        df = df.interpolate(method='values')
+        df = df.dropna(axis=0, how='any')
+        
+        # 길이 101인 데이터프레임 생성
+        df = df[len(df) - 101:]
+        
+        # 학습데이터 분할
+        x_train, y_train = df[:100].drop("close", axis=1), df[:100]["close"]
+        
+        model.fit(x_train, y_train) # 100일 데이터 학습
+        
+        x_test = df[100:101].drop("close", axis=1) # 예측해야 할 값 분리
+        [close_price] = model.predict(x_test)
+        
+        #print("predict_close_price : ", close_price)
+        #print("true_close_price : ", df[100:101]["close"][0])
+        
         return close_price
 
     @staticmethod
