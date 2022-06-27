@@ -80,7 +80,6 @@ git push
 - Arima
 - XGB regression
 - LSTM
-- Prophet
 
 
 
